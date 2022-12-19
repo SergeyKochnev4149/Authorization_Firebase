@@ -30,6 +30,10 @@
             android:name=".SignInActivity"
             />
 
+        <activity
+            android:name=".SuccessfulAuthorizationActivity"
+            />
+
 
     </application>
 
