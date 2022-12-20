@@ -12,12 +12,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerInParent="true"
-    >
+    tools:ignore="UselessParent">
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="authorization successful"
+        android:text="@string/authorizationSuccessful"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/white"
@@ -36,7 +36,7 @@
         android:layout_centerHorizontal="true"
         android:textSize="18sp"
         android:onClick="logout"
-        />
+        tools:ignore="UsingOnClickInXml" />
 </RelativeLayout>
 
 

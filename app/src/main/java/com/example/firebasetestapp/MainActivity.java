@@ -22,7 +22,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 
 public class MainActivity extends AppCompatActivity {
-    private EditText editTextEmail, editTextPassword;
     private FirebaseAuth mAuth;
     private TextView error;
 
@@ -38,69 +37,74 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null)
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+
         if (currentUser != null) {
             setContentView(R.layout.activity_successful_authorization);
         } else {
             setContentView(R.layout.activity_sign_in);
-            editTextEmail = findViewById(R.id.editTextTextEmailAddress);
-            editTextPassword = findViewById(R.id.editTextTextPassword);
-            error = findViewById(R.id.error);
         }
     }
 
 
-
     public void signIn(View view) {
+
+        EditText editTextEmail = findViewById(R.id.editTextTextEmailAddress);
+        EditText editTextPassword = findViewById(R.id.editTextTextPassword);
+        error = findViewById(R.id.error);
+
         String email = editTextEmail.getText().toString();
         String password = editTextPassword.getText().toString();
 
+        if (email.isEmpty() || password.isEmpty()) {
+            error.setText(R.string.emptyField);
+            return;
+        }
 
-        if (!(email.equals("") && password.equals(""))) {
+//      Authentication in system with firebase by email and password
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(MainActivity.this, (OnCompleteListener<AuthResult>) task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "signInWithEmail:success");
+                        setContentView(R.layout.activity_successful_authorization);
 
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(MainActivity.this, (OnCompleteListener<AuthResult>) task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithEmail:success");
-                            setContentView(R.layout.activity_successful_authorization);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            if (hasConnection(this))
-                                error.setText("Incorrect email or password");
-                            else {
-                                error.setText("");
-                                Toast.makeText(MainActivity.this, "No internet connection.",
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        if (hasInternetConnection(this))
+                            error.setText(R.string.incorrectData);
+                        else {
+                            error.setText("");
+                            Toast.makeText(MainActivity.this, "No internet connection.",
+                                    Toast.LENGTH_SHORT).show();
                         }
-                    });
-        } else
-            error.setText("Email or password is empty");
+                    }
+                });
     }
-
 
 
     public void logout(View view) {
         FirebaseAuth.getInstance().signOut();
         setContentView(R.layout.activity_sign_in);
+
     }
 
 
-
-    public static boolean hasConnection(final Context context) {
+    public static boolean hasInternetConnection(final Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+//      Check for internet connection via wifi
         NetworkInfo wifiInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if (wifiInfo != null && wifiInfo.isConnected()) {
             return true;
         }
+
+//      Check for mobile internet connection
         wifiInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         if (wifiInfo != null && wifiInfo.isConnected()) {
             return true;
         }
-        wifiInfo = cm.getActiveNetworkInfo();
-        if (wifiInfo != null && wifiInfo.isConnected()) {
-            return true;
-        }
+
         return false;
     }
 }
